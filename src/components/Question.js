@@ -1,54 +1,49 @@
-import React from 'react'
-import { connect } from 'react-redux'
-import { formatQuestion } from '../utils/helpers'
-import { Link } from 'react-router-dom'
+import React from "react";
+import { useSelector } from "react-redux";
+import { Link } from "react-router-dom";
+import { createSelector } from "reselect";
+import { formatQuestion } from "../utils/helpers";
 
-class Question extends React.Component {
-  render() {
-    const { question } = this.props
-    if (question === null) {
-      return <p>This Question doesn't exist</p>
-    }
+const getQuestion = (state, props) => state.questions[props.id];
+const getAuthedUser = (state) => state.authedUser;
+const getUsers = (state) => state.users;
 
-    const { 
-      name, optionOne, id
-    } = question
+const selectQuestion = createSelector(
+  [getQuestion, getAuthedUser, getUsers],
+  (question, authedUser, users) => {
+    const formatedQuestion = formatQuestion(
+      question,
+      users[question.author],
+      authedUser
+    );
 
-    const avatar = question.avatar
+    return question ? formatedQuestion : null;
+  }
+);
 
-    return (
-      <Link to={`/questions/${id}`}>
-        <div className="question-card">
-          <div className="card-info">
-            <img 
-              src={require(`../${avatar}`)} 
-              alt={`Avatar of ${name}`}
-            /> 
-            <div className="ml-8">
-              <h2>Would you rather</h2>
-              <p className="author">{`Asked by ${name}`}</p>
-              <div className="line-bottom-black mt-8 mb-16"></div>
-              <p>{`...${optionOne.text}...`}</p>
-            </div>
+const Question = (props) => {
+  const question = useSelector((state) => selectQuestion(state, props));
+  const { name, optionOne, id, avatar } = question;
+
+  if (question === null) {
+    return <p>This Question doesn't exist</p>;
+  }
+
+  return (
+    <Link to={`/questions/${id}`}>
+      <div className="question-card">
+        <div className="card-info">
+          <img src={require(`../${avatar}`)} alt={`Avatar of ${name}`} />
+          <div className="ml-8">
+            <h2>Would you rather</h2>
+            <p className="author">{`Asked by ${name}`}</p>
+            <div className="line-bottom-black mt-8 mb-16"></div>
+            <p>{`...${optionOne.text}...`}</p>
           </div>
-        {/* <div className="question-card-btn mt-16">
-          <Link to={`/questions/${id}`}>View Poll</Link>
-        </div> */}
         </div>
-      </Link>
-    )
-  }
-}
+      </div>
+    </Link>
+  );
+};
 
-function mapStateToProps ({questions, authedUser, users}, { id }) {
-  const question = questions[id]
-
-  return {
-    authedUser,
-    question: question 
-      ? formatQuestion(question, users[question.author], authedUser)
-      : null
-  }
-}
-
-export default connect(mapStateToProps)(Question)
+export default Question;
