@@ -1,10 +1,11 @@
 import React from "react";
-import { connect } from "react-redux";
+import { useSelector } from "react-redux";
 import { isMobile } from "react-device-detect";
 import LeaderBoardCard from "./LeaderBoardCard";
+import { selectUsersSortedByScore } from "../selectors";
 
-function LeaderBoard(props) {
-  const { usersSortedByScore } = props;
+function LeaderBoard() {
+  const usersSortedByScore = useSelector(selectUsersSortedByScore);
 
   return (
     <div>
@@ -19,28 +20,4 @@ function LeaderBoard(props) {
   );
 }
 
-function mapStateToProps({ users }) {
-  const usersWithScore = Object.keys(users).map((id) => {
-    const user = users[id];
-    const answeredQuestions = Object.keys(user.answers).length;
-    const createdQuestions = user.questions.length;
-    const score = answeredQuestions + createdQuestions;
-
-    return {
-      ...user,
-      answeredQuestions,
-      createdQuestions,
-      score,
-    };
-  });
-
-  const usersSortedByScore = usersWithScore.sort(function (a, b) {
-    return b.score - a.score;
-  });
-
-  return {
-    usersSortedByScore,
-  };
-}
-
-export default connect(mapStateToProps)(LeaderBoard);
+export default LeaderBoard;

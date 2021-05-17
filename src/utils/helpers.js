@@ -17,3 +17,9 @@ export function isQuestionVoted (id, questions, authedUser) {
   return questions[id].optionOne.votes.includes(authedUser)
     || questions[id].optionTwo.votes.includes(authedUser)
 }
+
+export function sortUserByScore (usersWithScore) {
+  return usersWithScore.sort((a, b) => {
+    return b.score - a.score;
+  });
+};
