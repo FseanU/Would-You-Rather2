@@ -1,40 +1,22 @@
-import React from 'react'
-import { connect } from 'react-redux'
-import { isMobile } from 'react-device-detect'
+import React from "react";
+import { connect } from "react-redux";
+import { isMobile } from "react-device-detect";
+import LeaderBoardCard from "./LeaderBoardCard";
 
 function LeaderBoard(props) {
-  const { usersSortedByScore } = props
+  const { usersSortedByScore } = props;
 
   return (
     <div>
-        <h1 className="mt-72 leaderBoard">Leader Board</h1>
-        <div className={!isMobile && "line-bottom-black"}></div>
+      <h1 className="mt-72 leaderBoard">Leader Board</h1>
+      <div className={!isMobile && "line-bottom-black"}></div>
       <div className="card-container mt-48">
-        {usersSortedByScore.map((user) => {
-          const avatar = user.avatarURL
-          return (
-            <div className='card p-16' key={user.id}>
-              <img 
-                src={require(`../${avatar}`)} 
-                alt={`Avatar of ${user.name}`} 
-              />
-              <h2 className="mt-8">{user.name}</h2>
-              <h1 className="mt-16">{user.score}</h1>
-              <div className="line-bottom-white"></div>
-              <div className='text-card mb-8'>
-                <p>Answered questions</p>
-                <p>{user.answeredQuestions}</p>
-              </div>
-              <div className='text-card mb-8'>
-                <p>Created questions</p>
-                <p>{user.createdQuestions}</p>
-              </div>
-            </div>
-          )
-        })}
+        {usersSortedByScore.map((user) => (
+          <LeaderBoardCard key={user.id} user={user} />
+        ))}
       </div>
     </div>
-  )
+  );
 }
 
 function mapStateToProps({ users }) {
@@ -43,22 +25,22 @@ function mapStateToProps({ users }) {
     const answeredQuestions = Object.keys(user.answers).length;
     const createdQuestions = user.questions.length;
     const score = answeredQuestions + createdQuestions;
-    
+
     return {
       ...user,
       answeredQuestions,
       createdQuestions,
-      score
+      score,
     };
-  })
-  
-  const usersSortedByScore = usersWithScore.sort(function(a, b) {
+  });
+
+  const usersSortedByScore = usersWithScore.sort(function (a, b) {
     return b.score - a.score;
-  }) 
+  });
 
   return {
     usersSortedByScore,
-  }
+  };
 }
 
-export default connect(mapStateToProps)(LeaderBoard)
+export default connect(mapStateToProps)(LeaderBoard);
