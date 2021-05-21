@@ -1,122 +1,110 @@
-import React from 'react'
-import { connect } from 'react-redux'
-import { Redirect } from 'react-router-dom'
-import { isMobile } from 'react-device-detect'
-import { handleAnswerQuestion } from '../actions/questions'
+import React, { useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { isMobile } from "react-device-detect";
+import { handleAnswerQuestion } from "../actions/questions";
+import { createSelector } from "reselect";
 
-class AnswerQuestion extends React.Component {
-  state = {
-    toQuestionResults: false,
-  }
+const selectQuestions = (state) => state.questions;
+const selectId = (_, id) => id;
+const selectUsers = (state) => state.users;
 
-  handleChange = (e) => {
-    const { name, value } = e.target
+const selectQuestionById = createSelector(
+  selectQuestions,
+  selectId,
+  (questions, id) => questions[id]
+);
 
-    this.setState(() => ({
-      [name]: value
-    }))
-  }
+const selectAuthor = createSelector(
+  selectQuestionById,
+  selectUsers,
+  (question, users) => users[question.author]
+);
 
-  handleSubmit = (e) => {
-    e.preventDefault()
-    const { answer } = this.state
-    const { dispatch, authedUser, qid } = this.props
+const AnswerQuestion = ({ id }) => {
+  const dispatch = useDispatch();
+  const [answer, setAnswer] = useState("");
 
-    dispatch(handleAnswerQuestion({
-      qid,
-      authedUser,
-      answer,
-    }))
+  const authedUser = useSelector((state) => state.authedUser);
+  const author = useSelector((state) => selectAuthor(state, id));
+  const question = useSelector((state) => selectQuestionById(state, id));
+  const optionOneText = question.optionOne.text;
+  const optionTwoText = question.optionTwo.text;
+  const avatar = author.avatarURL;
 
-    this.setState({
-      toQuestionResults: true,
-    })
-  }
-  render() {
-    const { question, author } = this.props
-    const { answer, toQuestionResults } = this.state
-    const optionOneText = question.optionOne.text
-    const optionTwoText = question.optionTwo.text
-    const avatar = author.avatarURL
+  const handleChange = (e) => {
+    const { value } = e.target;
+    setAnswer(value);
+  };
 
-    if (toQuestionResults) {
-      return <Redirect to='/question/:id' />
-    }
+  const handleSubmit = (e) => {
+    e.preventDefault();
 
-    return (
-      <div className="mt-72 answer-question">
-        <form onSubmit={this.handleSubmit}>
-          <div className="author-info">
-            <img 
-            src={require(`../${avatar}`)}
-            alt={`Avatar of ${author.name}`}
-            /> 
-            <div className="ml-16">
-              <p>{author.name} asks:</p>
-              <h1>Would You Rather</h1>
-            </div>
+    dispatch(
+      handleAnswerQuestion({
+        qid: id,
+        authedUser,
+        answer,
+      })
+    );
+  };
+
+  return (
+    <div className="mt-72 answer-question">
+      <form onSubmit={handleSubmit}>
+        <div className="author-info">
+          <img src={require(`../${avatar}`)} alt={`Avatar of ${author.name}`} />
+          <div className="ml-16">
+            <p>{author.name} asks:</p>
+            <h1>Would You Rather</h1>
           </div>
-          <div className="options mt-64">
-            {/* option one */}
-            <input 
-              type="radio" 
-              value="optionOne" 
-              name='answer'
-              onChange={this.handleChange}
-              id="optionOne"
-            />
-            <label 
-              htmlFor="optionOne" 
-              className="option1"
-              id={this.state.answer === "optionOne" ? "selected" : "unselected"}
-            >
-              {optionOneText}  
-            </label>
+        </div>
+        <div className="options mt-64">
+          {/* option one */}
+          <input
+            type="radio"
+            value="optionOne"
+            name="answer"
+            onChange={handleChange}
+            id="optionOne"
+          />
+          <label
+            htmlFor="optionOne"
+            className="option1"
+            id={answer === "optionOne" ? "selected" : "unselected"}
+          >
+            {optionOneText}
+          </label>
 
-            {isMobile 
-              ? (<p className="or">or</p>)
-              : (<div className="line-right-black"></div>)
-            }
-            
-            {/* option two */}
-            <input 
-              type="radio" 
-              value="optionTwo"
-              name='answer'
-              onChange={this.handleChange}
-              id="optionTwo"
-            />
-            <label 
-              htmlFor="optionTwo" 
-              className="option2"
-              id={this.state.answer === "optionTwo" ? "selected" : "unselected"}
-            >
-              {optionTwoText}  
-            </label>  
-          </div>
-          <div className="answer-question-btn mt-56">
-            <button
-              type='submit'
-              disabled={ answer === undefined }>
-              Submit
-            </button>
-          </div>
-        </form>
-      </div>
-    )
-  }
-}
+          {isMobile ? (
+            <p className="or">or</p>
+          ) : (
+            <div className="line-right-black"></div>
+          )}
 
-function mapStateToProps ({ questions, authedUser, users }, props) {
-  const { id } = props
-  const question = questions[id]
-  const author = users[question.author]
-  return {
-    question,
-    authedUser,
-    qid: id,
-    author
-  }
-}
+          {/* option two */}
+          <input
+            type="radio"
+            value="optionTwo"
+            name="answer"
+            onChange={handleChange}
+            id="optionTwo"
+          />
+          <label
+            htmlFor="optionTwo"
+            className="option2"
+            id={answer === "optionTwo" ? "selected" : "unselected"}
+          >
+            {optionTwoText}
+          </label>
+        </div>
+        <div className="answer-question-btn mt-56">
+          <button type="submit" disabled={answer === undefined}>
+            Submit
+          </button>
+        </div>
+      </form>
+    </div>
+  );
+};
 
-export default connect(mapStateToProps)(AnswerQuestion)
+export default AnswerQuestion;
