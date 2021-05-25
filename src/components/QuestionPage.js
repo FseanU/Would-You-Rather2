@@ -1,42 +1,37 @@
-import React from 'react'
-import { connect } from 'react-redux'
-import { Redirect } from 'react-router-dom'
-import AnswerQuestion from './AnswerQuestion'
-import QuestionResults from './QuestionResults'
+import React from "react";
+import { useSelector } from "react-redux";
+import { Redirect } from "react-router-dom";
+import AnswerQuestion from "./AnswerQuestion";
+import QuestionResults from "./QuestionResults";
 
-class QuestionPage extends React.Component {
-  render() {
-    const { id, optionOneVotedArr, optionTwoVotedArr, authedUser, questionExist } = this.props 
-    
-    if (!questionExist) {
-      return <Redirect to="/404" />
-    }
+const QuestionPage = (props) => {
+  const { id } = props.match.params;
+  const authedUser = useSelector((state) => state.authedUser);
+  const questions = useSelector((state) => state.questions);
+  const isQuestionExist = questions[id];
+  const optionOneVotedArr = isQuestionExist
+    ? questions[id].optionOne.votes
+    : "";
+  const optionTwoVotedArr = isQuestionExist
+    ? questions[id].optionTwo.votes
+    : "";
+  const isUserVoted = (user) => {
+    return optionOneVotedArr.includes(user) || optionTwoVotedArr.includes(user);
+  };
 
-    return (
-      <>
-        {/* 1. Show AnswerQuestion if authedUser haven't answered the question
-            2. Show QuestionResult if authedUser answered the question  */}
-        {optionOneVotedArr.includes(authedUser) || optionTwoVotedArr.includes(authedUser)
-          ? <QuestionResults id={id} />
-          : <AnswerQuestion id={id} /> }
-      </>
-    )
+  if (!isQuestionExist) {
+    return <Redirect to="/404" />;
   }
-}
 
-function mapStateToProps ({authedUser, questions}, props) {
-  const { id } = props.match.params
-  const questionExist = questions[id] 
-  const optionOneVotedArr = questionExist ? questions[id].optionOne.votes : ''
-  const optionTwoVotedArr = questionExist ? questions[id].optionTwo.votes : ''
+  return (
+    <>
+      {isUserVoted(authedUser) ? (
+        <QuestionResults id={id} />
+      ) : (
+        <AnswerQuestion id={id} />
+      )}
+    </>
+  );
+};
 
-  return {
-    id,
-    authedUser,
-    optionOneVotedArr,
-    optionTwoVotedArr,
-    questionExist,
-  }
-}
-
-export default connect(mapStateToProps)(QuestionPage)
+export default QuestionPage;
