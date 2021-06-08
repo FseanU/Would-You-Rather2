@@ -1,7 +1,8 @@
 import React, { useState } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { Redirect, useLocation } from "react-router-dom";
-import { setAuthedUser } from "../actions/authedUser";
+import { setAuthedUser } from "../../actions/authedUser";
+import * as Styled from "./style";
 
 function SignIn() {
   const [authed, setAuthed] = useState("sarahedo");
@@ -31,30 +32,28 @@ function SignIn() {
   }
 
   return (
-    <div className="sign-in-container mt-72">
-      <img
-        src={require(`../images/login_illustration.png`)}
+    <Styled.Container>
+      <Styled.SignInImg
+        src={require(`../../images/login_illustration.png`)}
         alt="login illustration"
       />
-      <div className="sign-in">
-        <h1>
+      <Styled.SignInCon>
+        <Styled.Title>
           Sign in <br />
           to play
-        </h1>
-        <form onSubmit={handleSubmit}>
-          <select value={authed} onChange={handleChange} className="mt-32 p-8">
+        </Styled.Title>
+        <Styled.Form onSubmit={handleSubmit}>
+          <Styled.Select value={authed} onChange={handleChange}>
             {Object.keys(users).map((id) => (
-              <option key={id} value={id}>
+              <Styled.Option key={id} value={id}>
                 {users[id].name}
-              </option>
+              </Styled.Option>
             ))}
-          </select>
-          <button type="submit" className="mt-16">
-            Sign In
-          </button>
-        </form>
-      </div>
-    </div>
+          </Styled.Select>
+          <Styled.Button type="submit">Sign In</Styled.Button>
+        </Styled.Form>
+      </Styled.SignInCon>
+    </Styled.Container>
   );
 }
 
