@@ -1,8 +1,9 @@
 import React, { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { isMobile } from "react-device-detect";
-import { handleAnswerQuestion } from "../actions/questions";
+import { handleAnswerQuestion } from "../../actions/questions";
 import { createSelector } from "reselect";
+import * as Styled from "./style";
 
 const selectQuestions = (state) => state.questions;
 const selectId = (_, id) => id;
@@ -49,61 +50,61 @@ const AnswerQuestion = ({ id }) => {
   };
 
   return (
-    <div className="mt-72 answer-question">
+    <Styled.Container>
       <form onSubmit={handleSubmit}>
-        <div className="author-info">
-          <img src={require(`../${avatar}`)} alt={`Avatar of ${author.name}`} />
-          <div className="ml-16">
-            <p>{author.name} asks:</p>
-            <h1>Would You Rather</h1>
-          </div>
-        </div>
-        <div className="options mt-64">
+        <Styled.AuthorInfo>
+          <Styled.AuthorImg
+            src={require(`../../${avatar}`)}
+            alt={`Avatar of ${author.name}`}
+          />
+          <Styled.TextCon>
+            <Styled.Text>{author.name} asks:</Styled.Text>
+            <Styled.Title>Would You Rather</Styled.Title>
+          </Styled.TextCon>
+        </Styled.AuthorInfo>
+        <Styled.OptionCon>
           {/* option one */}
-          <input
+          <Styled.Input
             type="radio"
             value="optionOne"
             name="answer"
             onChange={handleChange}
             id="optionOne"
           />
-          <label
+          <Styled.Label
             htmlFor="optionOne"
-            className="option1"
-            id={answer === "optionOne" ? "selected" : "unselected"}
+            selected={answer === "optionOne"}
+            gridColumn={isMobile ? "1/13" : "1/5"}
           >
             {optionOneText}
-          </label>
+          </Styled.Label>
 
-          {isMobile ? (
-            <p className="or">or</p>
-          ) : (
-            <div className="line-right-black"></div>
-          )}
+          {isMobile ? <Styled.Or>or</Styled.Or> : <Styled.VerticalLine />}
 
           {/* option two */}
-          <input
+          <Styled.Input
             type="radio"
             value="optionTwo"
             name="answer"
             onChange={handleChange}
             id="optionTwo"
           />
-          <label
+          <Styled.Label
             htmlFor="optionTwo"
-            className="option2"
-            id={answer === "optionTwo" ? "selected" : "unselected"}
+            selected={answer === "optionTwo"}
+            gridColumn={isMobile ? "1/13" : "7/11"}
           >
             {optionTwoText}
-          </label>
-        </div>
-        <div className="answer-question-btn mt-56">
-          <button type="submit" disabled={answer === undefined}>
+          </Styled.Label>
+        </Styled.OptionCon>
+
+        <Styled.FlexCon>
+          <Styled.Button type="submit" disabled={answer === undefined}>
             Submit
-          </button>
-        </div>
+          </Styled.Button>
+        </Styled.FlexCon>
       </form>
-    </div>
+    </Styled.Container>
   );
 };
 
